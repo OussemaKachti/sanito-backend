@@ -1,0 +1,7 @@
+export enum PatientStatus {
+  ACTIVE = 'ACTIVE',
+  DISCHARGED = 'DISCHARGED',
+  TRANSFERRED = 'TRANSFERRED',
+  ADMITTED = 'ADMITTED',
+  CRITICAL = 'CRITICAL',
+}
