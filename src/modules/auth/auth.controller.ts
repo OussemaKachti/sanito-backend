@@ -27,4 +27,55 @@ export class AuthController {
   getProfile(@CurrentUser() user: any) {
     return user;
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('refresh-token')
+  async refreshToken(@Body() body: { refreshToken: string }) {
+    return this.authService.refreshToken(body.refreshToken);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  async logout(@CurrentUser() user: any) {
+    return this.authService.logout(user.id);
+  }
+
+  @Public()
+  @Post('verify-token')
+  async verifyToken(@Body() body: { token: string }) {
+    return this.authService.verifyToken(body.token);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('change-password')
+  async changePassword(
+    @CurrentUser() user: any,
+    @Body() body: { oldPassword: string; newPassword: string },
+  ) {
+    return this.authService.changePassword(user.id, body.oldPassword, body.newPassword);
+  }
+
+  @Public()
+  @Post('reset-password')
+  async resetPassword(@Body() body: { email: string }) {
+    return this.authService.resetPassword(body.email);
+  }
+
+  @Public()
+  @Post('verify-reset-token')
+  async verifyResetToken(@Body() body: { token: string }) {
+    return this.authService.verifyResetToken(body.token);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('enable-2fa')
+  async enableTwoFactor(@CurrentUser() user: any) {
+    return this.authService.enableTwoFactor(user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('verify-2fa')
+  async verifyTwoFactor(@CurrentUser() user: any, @Body() body: { code: string }) {
+    return this.authService.verifyTwoFactor(user.id, body.code);
+  }
 }

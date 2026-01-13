@@ -31,4 +31,39 @@ export class PrescriptionsService {
   async remove(id: string): Promise<void> {
     await this.prescriptionRepository.delete(id);
   }
+
+  async findByPatient(patientId: string, skip = 0, take = 10): Promise<Prescription[]> {
+    return this.prescriptionRepository.find({
+      where: { patientId },
+      skip,
+      take,
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async findByStatus(status: string, skip = 0, take = 10): Promise<Prescription[]> {
+    return this.prescriptionRepository.find({
+      where: { status },
+      skip,
+      take,
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async findActive(skip = 0, take = 10): Promise<Prescription[]> {
+    const now = new Date();
+    return this.prescriptionRepository
+      .createQueryBuilder('prescription')
+      .where('prescription.status = :status', { status: 'ACTIVE' })
+      .andWhere('prescription.startDate <= :now', { now })
+      .andWhere('prescription.endDate > :now', { now })
+      .skip(skip)
+      .take(take)
+      .getMany();
+  }
+
+  async updateStatus(prescriptionId: string, newStatus: string): Promise<Prescription | null> {
+    await this.prescriptionRepository.update(prescriptionId, { status: newStatus });
+    return this.findOne(prescriptionId);
+  }
 }

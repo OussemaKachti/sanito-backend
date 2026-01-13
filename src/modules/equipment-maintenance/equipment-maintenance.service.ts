@@ -31,4 +31,47 @@ export class EquipmentMaintenanceService {
   async remove(id: string): Promise<void> {
     await this.maintenanceRepository.delete(id);
   }
+
+  async scheduleNewMaintenance(equipmentId: string, maintenanceType: string, scheduledDate: Date): Promise<EquipmentMaintenance> {
+    const maintenance = this.maintenanceRepository.create({
+      equipment: { id: equipmentId } as any,
+      maintenanceType,
+      scheduledDate,
+      status: 'SCHEDULED' as any,
+    });
+    return this.maintenanceRepository.save(maintenance);
+  }
+
+  async getScheduledMaintenance(skip = 0, take = 10): Promise<EquipmentMaintenance[]> {
+    return this.maintenanceRepository.find({
+      where: { status: 'SCHEDULED' as any },
+      skip,
+      take,
+      order: { scheduledDate: 'ASC' },
+    });
+  }
+
+  async getCompletedMaintenance(skip = 0, take = 10): Promise<EquipmentMaintenance[]> {
+    return this.maintenanceRepository.find({
+      where: { status: 'COMPLETED' as any },
+      skip,
+      take,
+      order: { scheduledDate: 'DESC' },
+    });
+  }
+
+  async calculateNextMaintenanceDate(equipmentId: string): Promise<Date> {
+    const lastMaintenance = await this.maintenanceRepository.findOne({
+      where: { equipment: { id: equipmentId }, status: 'COMPLETED' as any },
+      order: { scheduledDate: 'DESC' },
+    });
+
+    if (!lastMaintenance) return new Date(); // Default to today if no maintenance history
+
+    const maintenanceIntervalDays = 30; // Default interval
+    const nextDate = new Date(lastMaintenance.scheduledDate);
+    nextDate.setDate(nextDate.getDate() + maintenanceIntervalDays);
+
+    return nextDate;
+  }
 }

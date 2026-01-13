@@ -56,4 +56,75 @@ export class AlertsService {
     const critical = await this.alertRepository.count({ where: { severity: AlertSeverity.CRITICAL } });
     return { total, open, critical };
   }
+
+  async getAlertsByType(type: string, skip = 0, take = 10): Promise<Alert[]> {
+    return this.alertRepository.find({
+      where: { alertType: type as any },
+      skip,
+      take,
+      order: { triggeredAt: 'DESC' },
+    });
+  }
+
+  async getAlertsBySeverity(severity: AlertSeverity, skip = 0, take = 10): Promise<Alert[]> {
+    return this.alertRepository.find({
+      where: { severity: severity as any },
+      skip,
+      take,
+      order: { triggeredAt: 'DESC' },
+    });
+  }
+
+  async getAlertsByStatus(status: AlertStatus, skip = 0, take = 10): Promise<Alert[]> {
+    return this.alertRepository.find({
+      where: { status: status as any },
+      skip,
+      take,
+      order: { triggeredAt: 'DESC' },
+    });
+  }
+
+  async createAlertRule(data: any): Promise<any> {
+    // TODO: Create AlertRule entity and repository
+    return {
+      id: 'rule-' + Date.now(),
+      ...data,
+      createdAt: new Date(),
+    };
+  }
+
+  async updateAlertRule(ruleId: string, data: any): Promise<any> {
+    // TODO: Update AlertRule entity
+    return {
+      id: ruleId,
+      ...data,
+      updatedAt: new Date(),
+    };
+  }
+
+  async deleteAlertRule(ruleId: string): Promise<void> {
+    // TODO: Delete AlertRule entity
+    console.log(`Alert rule ${ruleId} deleted`);
+  }
+
+  async triggerAlert(type: string, severity: string, relatedData: any): Promise<Alert> {
+    const alert = this.alertRepository.create({
+      alertType: type as any,
+      severity: severity as any,
+      status: AlertStatus.OPEN,
+      triggeredAt: new Date(),
+      details: relatedData,
+    } as any);
+    const saved = await this.alertRepository.save(alert);
+    return Array.isArray(saved) ? saved[0] : saved;
+  }
+
+  async getAlertsByPatient(patientId: string, skip = 0, take = 10): Promise<Alert[]> {
+    return this.alertRepository.find({
+      where: { patientId: patientId as any },
+      skip,
+      take,
+      order: { triggeredAt: 'DESC' },
+    });
+  }
 }

@@ -68,4 +68,42 @@ export class ActivityLogService {
 
     return { totalLogs, actionCounts };
   }
+
+  async logAction(userId: string, action: string, entityType: string, entityId: string, description: string): Promise<ActivityLog> {
+    return this.log(action, entityType, entityId, userId, undefined, { description });
+  }
+
+  async logDataChange(userId: string, entityType: string, entityId: string, oldValues: any, newValues: any): Promise<ActivityLog> {
+    return this.log('DATA_CHANGE', entityType, entityId, userId, oldValues, newValues);
+  }
+
+  async findByAction(action: string, skip = 0, take = 10): Promise<ActivityLog[]> {
+    return this.activityLogRepository.find({
+      where: { action },
+      skip,
+      take,
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async findByEntityType(entityType: string, skip = 0, take = 10): Promise<ActivityLog[]> {
+    return this.activityLogRepository.find({
+      where: { entityType },
+      skip,
+      take,
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async searchLogs(query: string, skip = 0, take = 10): Promise<ActivityLog[]> {
+    return this.activityLogRepository
+      .createQueryBuilder('log')
+      .where('log.action ILIKE :query', { query: `%${query}%` })
+      .orWhere('log.entityType ILIKE :query', { query: `%${query}%` })
+      .orWhere('log.description ILIKE :query', { query: `%${query}%` })
+      .skip(skip)
+      .take(take)
+      .orderBy('log.createdAt', 'DESC')
+      .getMany();
+  }
 }

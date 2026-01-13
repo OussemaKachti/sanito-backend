@@ -28,6 +28,7 @@ import { KafkaModule } from './modules/kafka/kafka.module';
 import { PatientPositionHistoryModule } from './modules/patient-position-history/patient-position-history.module';
 import { EquipmentPositionHistoryModule } from './modules/equipment-position-history/equipment-position-history.module';
 import { SupabaseModule } from './modules/supabase/supabase.module';
+import { SharedModule } from './modules/shared/shared.module';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { SupabaseModule } from './modules/supabase/supabase.module';
     PatientPositionHistoryModule,
     EquipmentPositionHistoryModule,
     SupabaseModule,
+    SharedModule,
   ],
   controllers: [],
   providers: [
